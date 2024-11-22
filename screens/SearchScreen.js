@@ -1,17 +1,31 @@
 import React, { useState } from 'react';
 import { View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState(['transformação digital', 'processos industria']);
-
-  const courses = [
-    { id: '1', title: 'Automação e Digitalização de Processos Industriais', level: 'Intermediário', exercises: '28 exercícios', duration: '6h 30min', rating: 4.9, isFavorite: true },
+  
+  const [courses, setCourses] = useState([
+    { id: '1', title: 'Automação e Digitalização de Processos Industriais', level: 'Intermediário', exercises: '28 exercícios', duration: '6h 30min', rating: 4.9, isFavorite: false },
     { id: '2', title: 'Tecnologias Disruptivas na Manufatura', level: 'Iniciante', exercises: '24 exercícios', duration: '3h 42min', rating: 4.8, isFavorite: false },
-    { id: '3', title: 'Uso de Ferramentas Digitais no Ambiente Industrial', level: 'Avançado', exercises: '46 exercícios', duration: '8h 28min', rating: 4.6, isFavorite: true },
+    { id: '3', title: 'Uso de Ferramentas Digitais no Ambiente Industrial', level: 'Avançado', exercises: '46 exercícios', duration: '8h 28min', rating: 4.6, isFavorite: false },
     { id: '4', title: 'Digitalização de Operações Industriais: Um Guia Prático', level: 'Intermediário', exercises: '39 exercícios', duration: '2h 34min', rating: 4.9, isFavorite: false },
-  ];
+  ]);
+
+  const navigation = useNavigation(); // Hook para navegação
+
+  const toggleFavorite = (courseId) => {
+    setCourses(courses.map(course => 
+      course.id === courseId ? { ...course, isFavorite: !course.isFavorite } : course
+    ));
+  };
+
+  const handleCoursePress = (course) => {
+    // Navega para a tela de detalhes do curso, passando os dados do curso
+    navigation.navigate('CourseDetails', { course });
+  };
 
   return (
     <View style={styles.container}>
@@ -52,7 +66,10 @@ export default function SearchScreen() {
       <FlatList
         data={courses.filter(course => course.title.toLowerCase().includes(searchQuery.toLowerCase()))}
         renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.courseContainer, item.isFavorite ? styles.favoriteBackground : null]}>
+          <TouchableOpacity 
+            style={[styles.courseContainer, item.isFavorite ? styles.favoriteBackground : null]}
+            onPress={() => handleCoursePress(item)} // Navegar para a tela de detalhes ao clicar no curso
+          >
             <Image source={{ uri: 'https://as2.ftcdn.net/v2/jpg/04/21/82/47/1000_F_421824738_bIajUPDXqrbf3s0o0pvqHk0XbLnOWfrx.jpg' }} style={styles.courseImage} />
             <View style={styles.courseInfo}>
               <Text style={styles.courseTitle}>{item.title}</Text>
@@ -62,8 +79,15 @@ export default function SearchScreen() {
                 <Text style={styles.courseRating}>⭐ {item.rating}</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.favoriteIcon}>
-              <MaterialCommunityIcons name={item.isFavorite ? "heart" : "heart-outline"} size={24} color={item.isFavorite ? "red" : "grey"} />
+            <TouchableOpacity 
+              style={styles.favoriteIcon}
+              onPress={() => toggleFavorite(item.id)} // Chama a função de alternância de favorito
+            >
+              <MaterialCommunityIcons 
+                name={item.isFavorite ? "heart" : "heart-outline"} 
+                size={24} 
+                color={item.isFavorite ? "red" : "grey"} 
+              />
             </TouchableOpacity>
           </TouchableOpacity>
         )}

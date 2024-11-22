@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, TextInput } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({ navigation }) {
+  const [userName, setUserName] = useState('Usuário');
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      const storedName = await AsyncStorage.getItem('userName');
+      if (storedName) {
+        setUserName(storedName);
+      }
+    };
+
+    fetchUserName();
+  }, []);
+
   const courses = [
     { id: '1', title: 'Capacitação Digital para a Indústria 4.0', subtitle: 'Transformação Digital', exercises: '28 exercícios', duration: '6h 30min', rating: 4.9 },
     { id: '2', title: 'Competências', subtitle: 'Inovação', exercises: '28 lessons', duration: '8h 30min', rating: 4.8 },
@@ -11,7 +25,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Text style={styles.greeting}>Olá, Larissa</Text>
+      <Text style={styles.greeting}>Olá, {userName}</Text>
       <Text style={styles.subtitle}>Encontre seus cursos</Text>
 
       {/* Search Bar */}
